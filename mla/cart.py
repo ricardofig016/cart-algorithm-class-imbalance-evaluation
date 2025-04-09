@@ -2,97 +2,145 @@ import numpy as np
 
 from mla.base import BaseEstimator
 
-class DTBase(BaseEstimator):
-    def __init__(self, min_samples_split=2, max_depth=None, min_impurity_decrease=0.0):
-        """
-        Initializes the Decision Tree Base class with the specified parameters.
+class CART(BaseEstimator):
+    def __init__(self, criterion = 'gini', prune = 'depth', max_depth = 4, min_criterion = 0.05):
+        self.x = None
+        self.label = None
+        self.n_samples = None
+        self.gain = None
+        self.left = None
+        self.right = None
+        self.threshold = None
+        self.depth = 0
 
-        Parameters:
-        min_samples_split (int, optional): The minimum number of samples required to split an internal node. Defaults to 2.
-        max_depth (int, optional): The maximum depth of the decision tree. If None, the tree will grow until all leaves are pure or until all leaves contain less than min_samples_split samples. Defaults to None.
-        min_impurity_decrease (float, optional): The minimum impurity decrease required for a split to be considered. Defaults to 0.0.
-        """
-        self.min_samples_split = min_samples_split
+        self.root = None
+        self.criterion = criterion
+        self.prune = prune
         self.max_depth = max_depth
-        self.min_impurity_decrease = min_impurity_decrease
+        self.min_criterion = min_criterion
 
-    def fit(self, X, y=None):
-        self.tree_ = self._build_tree(X, y)
-        return self
-
-    def _predict(self, X, y=None):
-        return self.tree_.predict(X)
+    def predict(self, X):
+        return np.array([self.root._predict(x) for x in X])
     
-    def _gini_impurity(self, y):
-        """
-        Calculates the Gini impurity of a given target variable.
+    def _grow_tree(self, X, y=None, criterion = 'gini'):
+        self.n_samples = X.shape[0] 
 
-        Parameters:
-        y (numpy.ndarray): A 1D array-like object containing the target variable values.
+        if len(np.unique(y)) == 1:
+            self.label = y[0]
+            return
 
-        Returns:
-        float: The Gini impurity of the target variable.
-        """
-        _, counts = np.unique(y, return_counts=True)
-        probabilities = counts / len(y)
-        return 1 - np.sum(probabilities ** 2)
-    
-    def _entropy(self, y):
-        """
-        Calculates the entropy of a given target variable.
+        best_gain = 0
+        best_x = None
+        best_threshold = None
 
-        Parameters:
-        y (numpy.ndarray): A 1D array-like object containing the target variable values.
+        if criterion in {'gini', 'entropy'}:
+            self.label = max([(c, len(y[y == c])) for c in np.unique(y)], key = lambda k : k[1])[0]
+        else:
+            self.label = np.mean(y)
 
-        Returns:
-        float: The entropy of the target variable. The entropy is a measure of the uncertainty or randomness in the data.
-        """
-        _, counts = np.unique(y, return_counts=True)
-        probabilities = counts / len(y)
-        return -np.sum(probabilities * np.log2(probabilities))
-    
-    def _impurity(self, y):
-        """
-        Calculates the combined Gini impurity and entropy of a given target variable.
-
-        Parameters:
-        y (numpy.ndarray): A 1D array-like object containing the target variable values.
-
-        Returns:
-        float: The combined Gini impurity and entropy of the target variable.
-        """
-        gini = self._gini_impurity(y)
-        entropy = self._entropy(y)
-        return gini + entropy
-    
-    def _split_node(self, X, y, indices, feature_idx, split_value):
-        """
-        Splits a node in the decision tree based on a given feature and split value.
-
-        Parameters:
-        X (numpy.ndarray): A 2D array-like object containing the feature matrix.
-        y (numpy.ndarray): A 1D array-like object containing the target variable values.
-        indices (numpy.ndarray): A 1D array-like object containing the indices of the samples to split.
-        feature_idx (int): The index of the feature to split on.
-        split_value (float): The value to split the feature on.
-
-        Returns:
-        tuple: A tuple containing the indices of the samples in the left child node, the indices of the samples in the right child node, and the split value.
-        """
-        indices_left = np.where(X[indices, feature_idx] <= split_value)[0]
-        indices_right = np.where(X[indices, feature_idx] > split_value)[0]
-
-        return indices_left, indices_right, split_value
-    
-class DTClassifier(DTBase):
-    def _predict(self, X, node, depth=0):
-        if depth >= self.max_depth or node.childs is None:
-            return node.value
+        impurity_node = self._impurity(criterion, y)
         
-class DTRegressor(DTBase):
-    def _predict(self, X, node, depth=0):
-        if depth >= self.max_depth or node.childs is None:
-            return node.value
+        for col in range(X.shape[1]):
+            x_level = np.unique(X[:,col])
+            thresholds = (x_level[:-1] + x_level[1:]) / 2
+
+            for threshold in thresholds:
+                y_l = y[X[:,col] <= threshold]
+                impurity_l = self._impurity(criterion, y_l)
+                n_l = len(y_l) / self.n_samples
+
+                y_r = y[X[:,col] > threshold]
+                impurity_r = self._impurity(criterion, y_r)
+                n_r = len(y_r) / self.n_samples
+
+                impurity_gain = impurity_node - (n_l * impurity_l + n_r * impurity_r)
+                if impurity_gain > best_gain:
+                    best_gain = impurity_gain
+                    best_x = col
+                    best_threshold = threshold
+
+        self.x = best_x
+        self.gain = best_gain
+        self.threshold = best_threshold
+        self._split_tree(X, y, criterion)
+
+    def _split_tree(self, X, y, criterion):
+        X_l = X[X[:, self.x] <= self.threshold]
+        y_l = y[X[:, self.x] <= self.threshold]
+        self.left = CART()
+        self.left.depth = self.depth + 1
+        self.left._grow_tree(X_l, y_l, criterion)
+
+        X_r = X[X[:, self.x] > self.threshold]
+        y_r = y[X[:, self.x] > self.threshold]
+        self.right = CART()
+        self.right.depth = self.depth + 1
+        self.right._grow_tree(X_r, y_r, criterion)
+    
+    def _impurity(self, criterion, y=None):
+        if criterion == 'gini':
+            _, counts = np.unique(y, return_counts=True)
+            probabilities = counts / len(y)
+            return 1 - np.sum(probabilities ** 2)
+        elif criterion == 'mse':
+            return np.mean((y - np.mean(y)) ** 2)
+        elif criterion == 'entropy':
+            _, counts = np.unique(y, return_counts=True)
+            probabilities = counts / len(y)
+            return -np.sum(probabilities * np.log2(probabilities)) 
+        
+    def _predict(self, d):
+        if self.x != None:
+            if d[self.x] <= self.threshold:
+                return self.left._predict(d)
+            else:
+                return self.right._predict(d)
+        else: 
+            return self.label
+    
+    def _prune(self, method, max_depth, min_criterion, n_samples):
+        if self.x is None:
+            return
+
+        self.left._prune(method, max_depth, min_criterion, n_samples)
+        self.right._prune(method, max_depth, min_criterion, n_samples)
+
+        pruning = False
+
+        if method == 'impurity' and self.left.x is None and self.right.x is None: 
+            if ((self.gain * self.n_samples) / n_samples) < min_criterion:
+                pruning = True
+        elif method == 'depth' and self.depth >= max_depth:
+            pruning = True
+
+        if pruning is True:
+            self.left = None
+            self.right = None
+            self.x = None
+
+    def print_tree(self):
+        self.root._show_tree(0, ' ')
+
+    def _show_tree(self, depth, cond):
+        base = '    ' * depth + cond
+        if self.x != None:
+            print(base + 'if X[' + str(self.x) + '] <= ' + str(self.threshold))
+            self.left._show_tree(depth+1, 'then ')
+            self.right._show_tree(depth+1, 'else ')
+        else:
+            print(base + '{value: ' + str(self.label) + ', samples: ' + str(self.n_samples) + '}')
+
+class DecisionTreeClassifier(CART):
+    def fit(self, X, y=None):
+        self.root = CART()
+        self.root._grow_tree(X, y, self.criterion)
+        self.root._prune(self.prune, self.max_depth, self.min_criterion, self.root.n_samples)
+
+class DecisionTreeRegressor(CART):
+    def fit(self, X, y=None):
+        self.root = CART()
+        self.root._grow_tree(X, y, 'mse')
+        self.root._prune(self.prune, self.max_depth, self.min_criterion, self.root.n_samples)
         
         
                 

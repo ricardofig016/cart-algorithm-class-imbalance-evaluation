@@ -9,15 +9,20 @@ from sklearn.datasets import make_classification
 from mla.metrics.metrics import accuracy
 from mla.svm.kernerls import Linear, RBF
 from mla.svm.svm import SVM
+import glob
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 def classification():
     # Generate a random binary classification problem.
-    X, y = make_classification(
-        n_samples=1200, n_features=10, n_informative=5, random_state=1111, n_classes=2, class_sep=1.75
-    )
+    #X, y = make_classification(
+     #   n_samples=1200, n_features=10, n_informative=5, random_state=1111, n_classes=2, class_sep=1.75
+    #)
+    files1 = glob.glob("noise_outliers/*.csv")
+    files2 = glob.glob("class_imbalance/*.csv")
+    files3 = glob.glob("multiclass_classification/*.csv")
+    
     # Convert y to {-1, 1}
     y = (y * 2) - 1
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1111)
