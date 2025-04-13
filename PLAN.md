@@ -1,106 +1,123 @@
-# Practical Assignment
+# Assignment
 
-## **Phase 1: Algorithm Selection & Baseline Evaluation**
+## **Phase 1: Baseline Implementation & Analysis**
 
-Deadline: 24th April – 2nd May (Checkpoint)
+(Complete by checkpoint: 24th April – 2nd May)
 
-### **Step 1: Choose a Classification Algorithm**
+### **Step 1: Set Up Environment**
 
-1. **Pick a simple, well-understood algorithm** (e.g., Decision Tree, Logistic Regression, Naive Bayes, or k-NN).
-2. **Find open-source code** for the chosen algorithm (e.g., from [rushter/MLAlgorithms](https://github.com/rushter/MLAlgorithms)).
-   - Example: Use `decision_tree.py` for Decision Trees.
-   - **Reference the source code** in your report.
-
-### **Step 2: Understand the Algorithm**
-
-1. **Study the code line-by-line** and map it to the algorithm’s mathematical theory.
-2. **Write pseudocode** for the algorithm’s key steps (e.g., entropy calculation for Decision Trees).
-3. **Hypothesize weaknesses**: Which data characteristic (noise, imbalance, multiclass) impacts it most?
-   - Example: Decision Trees overfit noisy data.
-
-### **Step 3: Select a Data Challenge**
-
-1. Choose **one dataset group**:
-   - **Group 1 (Noise/Outliers)**: Use datasets like Iris with added noise.
-   - **Group 2 (Class Imbalance)**: Use datasets like Credit Fraud.
-   - **Group 3 (Multiclass)**: Use datasets like MNIST or CIFAR-10.
-2. **Download benchmark datasets** from UCI Machine Learning Repository or Kaggle.
-
-### **Step 4: Preprocess Data**
-
-1. **Clean datasets**: Remove duplicates, handle missing values.
-2. **Modify datasets** to match your chosen challenge:
-   - _Noise_: Add Gaussian noise to 20% of features.
-   - _Imbalance_: Downsample the majority class.
-3. **Split data**: 70% training, 30% testing.
-
-### **Step 5: Baseline Evaluation**
-
-1. **Run the original algorithm** on your datasets.
-2. **Evaluate performance** using metrics:
-   - Accuracy, Precision, Recall (for imbalance).
-   - Confusion matrix (for multiclass).
-3. **Save results** in a table for comparison later.
+1. Create a Jupyter Notebook.
+2. Install required libraries: `numpy`, `pandas`, `matplotlib`, `scikit-learn` (for data splitting/metrics only).
+3. Clone or download code for a basic CART implementation (e.g., [MLAlgorithms](https://github.com/rushter/MLAlgorithms/tree/master)) as a starting point.
 
 ---
 
-## **Phase 2: Algorithm Modification & Evaluation**
+### **Step 2: Understand CART Algorithm**
 
-Deadline: 25th May (Final Submission)
-
-### **Step 6: Propose an Algorithm Modification**
-
-1. **Brainstorm changes** to address your chosen data challenge:
-   - _Noise_: Add pruning to Decision Trees.
-   - _Imbalance_: Implement class weighting in Logistic Regression.
-   - _Multiclass_: Modify k-NN to use cosine similarity.
-2. **Document the theory** behind your modification.
-
-### **Step 7: Implement the Modified Algorithm**
-
-1. **Edit the original code** to include your change.
-   - Example: Add a `max_depth` parameter to Decision Trees to limit overfitting.
-2. **Test the code** on a small dataset to debug.
-
-### **Step 8: Evaluate the Modified Algorithm**
-
-1. **Re-run experiments** using the same datasets and splits as Phase 1.
-2. **Compare results** with the baseline using:
-   - Performance metrics.
-   - Visualizations (e.g., ROC curves for imbalance).
+1. Study the CART code from your chosen source.
+2. Document how the algorithm:
+   - Computes Gini impurity for splits.
+   - Handles categorical vs. continuous features.
+   - Grows the tree (stopping criteria, pruning).
+3. Write a summary of CART’s weaknesses in class imbalance (e.g., bias toward majority class).
 
 ---
 
-## **Final Deliverables Preparation**
+### **Step 3: Select & Preprocess Datasets**
 
-### **Step 9: Build the Jupyter Notebook**
-
-1. **Structure the notebook** with sections:
-   - Introduction, Methodology, Results, Conclusion.
-2. **Include code**, visualizations, and explanations.
-3. **Ensure reproducibility**: Add comments and save datasets locally.
-
-### **Step 10: Create Presentation Slides**
-
-Follow the **Presentation Guidelines**:
-
-1. **Cover Slide**: Group member names.
-2. **Executive Summary**: Goals, approach, key results.
-3. **Algorithm & Data Challenge**: Weakness analysis.
-4. **Proposal**: Motivation and implementation.
-5. **Results**: Side-by-side comparison of original vs. modified algorithm.
-6. **Conclusion**: Impact of your modification.
+1. Use **Dataset Group 2 (Class Imbalance)**. Recommended datasets:
+   - Credit Card Fraud Detection (Kaggle)
+   - Spambase (UCI)
+   - Medical Insurance Fraud (synthetic if needed).
+2. Preprocess:
+   - Handle missing values (drop or impute).
+   - Encode categorical variables (one-hot encoding).
+   - Normalize numerical features (min-max scaling).
+   - Split data into train/test (80/20) with stratification to preserve imbalance.
 
 ---
 
-## **Key Deadlines & Tips**
+### **Step 4: Implement Baseline CART**
 
-- **Checkpoint (24th April – 2nd May)**:
-  - Complete Phase 1.
-  - Prepare a 1-slide summary of your progress for the professor.
-- **Final Submission (25th May)**:
-  - Submit compressed file with notebook, slides, and datasets.
-- **Tips**:
-  - Test code incrementally.
-  - Use GitHub for version control.
-  - Start slides early and rehearse timing.
+1. Adapt the cloned CART code to work with your datasets.
+2. Train the model on the training set.
+3. Evaluate performance on the test set using:
+   - **Metrics**: F1-score, ROC-AUC, Precision-Recall curve (critical for imbalance).
+   - Baseline accuracy (compare to majority-class dummy classifier).
+
+---
+
+### **Step 5: Document Phase 1**
+
+1. Save results in a table (e.g., baseline metrics for all datasets).
+2. Write a brief analysis:
+   - How does class imbalance affect CART’s performance?
+   - Which datasets are most challenging?
+
+---
+
+## **Phase 2: Modify CART for Class Imbalance**
+
+(Complete by final deadline: 25th May)
+
+### **Step 6: Propose Modification**
+
+1. Modify CART to handle imbalance. Options:
+   - **Adjust split criterion**: Use weighted Gini impurity (weight minority class more).
+   - **Cost-sensitive learning**: Assign higher misclassification cost to minority class.
+   - **Hybrid approach**: Combine CART with SMOTE (synthetic oversampling).
+2. Justify your choice (e.g., "Weighted Gini reduces bias toward majority class").
+
+---
+
+### **Step 7: Implement Modified CART**
+
+1. Edit the CART code:
+   - Add class weights to Gini calculation (e.g., `weighted_gini = (1 - (p_minority^2 + p_majority^2)) * class_weight`).
+   - Modify splitting logic to prioritize minority-class-friendly splits.
+2. Validate code with unit tests (e.g., check if splits change with class weights).
+
+---
+
+### **Step 8: Evaluate Modified CART**
+
+1. Train the modified model on the same datasets.
+2. Compare results to baseline using:
+   - Same metrics (F1, ROC-AUC).
+   - Statistical tests (e.g., paired t-test for significance).
+3. Visualize improvements (e.g., ROC curves side-by-side).
+
+---
+
+### **Step 9: Final Documentation**
+
+1. Update the notebook with:
+   - Clean, commented code for both baseline and modified CART.
+   - Results tables/visualizations.
+   - Conclusion (e.g., "Weighted Gini improved F1 by 15% on fraud dataset").
+2. Prepare slides following the **Presentation Guidelines** (see template below).
+
+---
+
+## **Presentation Slide Template**
+
+1. **Cover Slide**: Group members’ names, student IDs.
+2. **Executive Summary**: "Modified CART with weighted Gini to address class imbalance."
+3. **CART & Class Imbalance**:
+   - Diagram of Gini impurity with/without weights.
+   - Example of imbalanced split in baseline vs. modified CART.
+4. **Proposal**: Formula for weighted Gini, pseudocode snippet.
+5. **Results**:
+   - Table comparing F1/AUC across datasets.
+   - Learning curves showing stability.
+6. **Conclusions**: Strengths/limitations of the modification.
+
+---
+
+## **Timeline**
+
+- **Week 1 (Now)**: Set up codebase, preprocess datasets.
+- **Week 2**: Implement baseline CART, run initial tests.
+- **Week 3**: Propose modification, start coding.
+- **Week 4**: Finalize implementation, run evaluations.
+- **Week 5**: Prepare slides, polish notebook.
