@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 
 def preprocess_datasets(
@@ -13,17 +13,11 @@ def preprocess_datasets(
     imputation_strategy="mean",
 ):
     """
-    Preprocess datasets for class imbalance challenge
-
-    Parameters:
-    - raw_dir: Input directory with raw CSV files
-    - processed_dir: Output directory for processed datasets
-    - test_size: Proportion for test split (default 0.2)
-    - random_state: Random seed for reproducibility
-    - imputation_strategy: Strategy for handling missing values ('mean' or 'drop')
+    Preprocess datasets with robust label encoding and validation
     """
 
     os.makedirs(processed_dir, exist_ok=True)
+    label_encoder = LabelEncoder()
 
     for filename in os.listdir(raw_dir):
         if not filename.endswith(".csv"):
@@ -32,74 +26,84 @@ def preprocess_datasets(
         print(f"\nProcessing {filename}...")
         file_path = os.path.join(raw_dir, filename)
 
-        # Load and clean data
-        df = pd.read_csv(file_path)
-        X = df.iloc[:, :-1]  # Features
-        y = df.iloc[:, -1]  # Target
+        try:
+            # Load and validate data
+            df = pd.read_csv(file_path)
+            if df.shape[1] < 2:
+                print(f"Skipping {filename}: Insufficient columns")
+                continue
 
-        # Remove rows with missing target values
-        valid_indices = y.notna()
-        X = X[valid_indices].reset_index(drop=True)
-        y = y[valid_indices].reset_index(drop=True)
+            # Separate features and target
+            X = df.iloc[:, :-1].copy()
+            y_raw = df.iloc[:, -1].copy()
 
-        # Feature cleaning pipeline
-        if imputation_strategy == "drop":
-            # Remove rows with any missing features
-            valid_rows = X.notna().all(axis=1)
-            X = X[valid_rows].reset_index(drop=True)
-            y = y[valid_rows].reset_index(drop=True)
-        else:
-            # Handle numerical features
-            numerical_cols = X.select_dtypes(include=np.number).columns
-            if len(numerical_cols) > 0:
-                # Two-stage imputation for all-NaN columns
-                col_means = X[numerical_cols].mean()
-                X[numerical_cols] = X[numerical_cols].fillna(col_means)
-                X[numerical_cols] = X[numerical_cols].fillna(
-                    0
-                )  # Fallback for all-NaN cols
+            # Clean and encode labels
+            valid_mask = y_raw.notna()
+            X, y_raw = X[valid_mask], y_raw[valid_mask]
 
-            # Handle categorical features
-            categorical_cols = X.select_dtypes(exclude=np.number).columns
-            for col in categorical_cols:
-                if X[col].isna().any():
-                    mode = X[col].mode()[0] if len(X[col].mode()) > 0 else "missing"
+            if len(y_raw) == 0:
+                print(f"Skipping {filename}: No valid targets")
+                continue
+
+            # Convert labels to 0-indexed integers
+            y = pd.Series(label_encoder.fit_transform(y_raw), name=y_raw.name)
+            classes = label_encoder.classes_
+            if len(classes) < 2:
+                print(f"Skipping {filename}: Only one class present")
+                continue
+
+            # Handle missing features
+            if imputation_strategy == "drop":
+                valid_rows = X.notna().all(axis=1)
+                X, y = X[valid_rows], y[valid_rows]
+            else:
+                # Numerical imputation
+                num_cols = X.select_dtypes(include=np.number).columns
+                if len(num_cols) > 0:
+                    X[num_cols] = X[num_cols].fillna(X[num_cols].mean()).fillna(0)
+
+                # Categorical imputation
+                cat_cols = X.select_dtypes(exclude=np.number).columns
+                for col in cat_cols:
+                    mode = X[col].mode()[0] if not X[col].mode().empty else "missing"
                     X[col] = X[col].fillna(mode)
 
-        # Convert categoricals to numeric
-        if len(categorical_cols) > 0:
-            X = pd.get_dummies(X, columns=categorical_cols, drop_first=False)
+            # Convert categoricals to dummies
+            if len(cat_cols) > 0:
+                X = pd.get_dummies(X, columns=cat_cols, drop_first=False)
 
-        # Final NaN safeguard
-        X = X.fillna(0)
+            # Final validation
+            X = X.fillna(0).infer_objects()
+            assert not X.isna().any().any(), "NaN values in features"
+            assert X.shape[0] > 0, "Empty dataset after preprocessing"
 
-        # Normalize numerical features
-        numerical_cols = X.select_dtypes(include=np.number).columns
-        if len(numerical_cols) > 0:
-            scaler = MinMaxScaler()
-            X[numerical_cols] = scaler.fit_transform(X[numerical_cols])
+            # Normalize numericals
+            num_cols = X.select_dtypes(include=np.number).columns
+            if len(num_cols) > 0:
+                X[num_cols] = MinMaxScaler().fit_transform(X[num_cols])
 
-        # Validate data integrity
-        assert not X.isna().any().any(), "NaN values detected after preprocessing"
-        assert not y.isna().any(), "NaN target values after preprocessing"
+            # Stratified split
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=test_size, stratify=y, random_state=random_state
+            )
 
-        # Stratified split
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, stratify=y, random_state=random_state
-        )
+            # Save processed data
+            base_name = os.path.splitext(filename)[0]
+            output_dir = os.path.join(processed_dir, base_name)
+            os.makedirs(output_dir, exist_ok=True)
 
-        # Save processed data
-        base_name = os.path.splitext(filename)[0]
-        final_dir = os.path.join(processed_dir, base_name)
-        os.makedirs(final_dir, exist_ok=True)
+            X_train.to_csv(os.path.join(output_dir, "X_train.csv"), index=False)
+            X_test.to_csv(os.path.join(output_dir, "X_test.csv"), index=False)
+            y_train.to_csv(os.path.join(output_dir, "y_train.csv"), index=False)
+            y_test.to_csv(os.path.join(output_dir, "y_test.csv"), index=False)
 
-        X_train.to_csv(os.path.join(final_dir, "X_train.csv"), index=False)
-        X_test.to_csv(os.path.join(final_dir, "X_test.csv"), index=False)
-        y_train.to_csv(os.path.join(final_dir, "y_train.csv"), index=False)
-        y_test.to_csv(os.path.join(final_dir, "y_test.csv"), index=False)
+            print(
+                f"Processed {base_name} | Classes: {list(classes)} → {list(y.unique())}"
+            )
 
-        print(f"Successfully processed {base_name}")
+        except Exception as e:
+            print(f"Failed processing {filename}: {str(e)}")
 
 
 if __name__ == "__main__":
-    preprocess_datasets(raw_dir="data/raw", processed_dir="data/processed")
+    preprocess_datasets()
