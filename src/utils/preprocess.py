@@ -6,9 +6,9 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 
 def preprocess_datasets(
-    raw_dir="data/raw",
-    processed_dir="data/processed",
-    test_size=0.2,
+    raw_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/raw",
+    processed_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/processed",
+    test_size=0.3,
     random_state=42,
     imputation_strategy="mean",
 ):
@@ -40,13 +40,13 @@ def preprocess_datasets(
             # Clean and encode labels
             valid_mask = y_raw.notna()
             X, y_raw = X[valid_mask], y_raw[valid_mask]
-
-            if len(y_raw) == 0:
+            y_raw_sorted = np.sort(y_raw)
+            if len(y_raw_sorted) == 0:
                 print(f"Skipping {filename}: No valid targets")
                 continue
 
             # Convert labels to 0-indexed integers
-            y = pd.Series(label_encoder.fit_transform(y_raw), name=y_raw.name)
+            y = pd.Series(label_encoder.fit_transform(y_raw_sorted), name=y_raw.name)
             classes = label_encoder.classes_
             if len(classes) < 2:
                 print(f"Skipping {filename}: Only one class present")
