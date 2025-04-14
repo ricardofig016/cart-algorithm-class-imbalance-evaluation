@@ -6,8 +6,8 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 
 def preprocess_datasets(
-    raw_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/raw",
-    processed_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/processed",
+    raw_dir="data/raw",
+    processed_dir="data/processed",
     test_size=0.3,
     random_state=42,
     imputation_strategy="mean",
