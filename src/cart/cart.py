@@ -198,3 +198,8 @@ if __name__ == "__main__":
         # Make predictions
         X_test = pd.read_csv(os.path.join(dataset_path, "X_test.csv")).values
         predictions = tree.predict(X_test)
+
+        # Test
+        y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
+        accuracy = np.mean(predictions == y_test)
+        print(f"Accuracy: {accuracy * 100:.2f}%")
