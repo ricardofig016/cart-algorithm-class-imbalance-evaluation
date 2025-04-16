@@ -180,7 +180,7 @@ if __name__ == "__main__":
     import os
     import pandas as pd
 
-    base_dir = "data/processed"
+    base_dir = "/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/processed"
     dirs = ['noise_outliers','class_imbalance','multiclass_classification']
     for dir in dirs:
         newbase_dir = "/".join((base_dir, dir))

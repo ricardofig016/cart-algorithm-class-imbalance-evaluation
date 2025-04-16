@@ -6,8 +6,8 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 
 def preprocess_datasets(
-    raw_dir="data/raw",
-    processed_dir="data/processed",
+    raw_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/raw",
+    processed_dir="/Users/sergiocardoso/Documents/cart-algorithm-class-imbalance-evaluation/data/processed",
     dirs = ['noise_outliers','class_imbalance','multiclass_classification'],
     test_size=0.3,
     random_state=42,
@@ -102,7 +102,7 @@ def preprocess_datasets(
                 y_test.to_csv(os.path.join(output_dir, "y_test.csv"), index=False)
 
                 print(
-                    f"Processed {base_name} | Classes: {list(classes)} → {list(y.unique())}\n"
+                    f"Classes: {list(classes)} → {list(y.unique())}\n"
                 )
 
             except Exception as e:
