@@ -180,30 +180,25 @@ if __name__ == "__main__":
     import os
     import pandas as pd
 
-    base_dir = "data/processed"
-    dirs = ['noise_outliers','class_imbalance','multiclass_classification']
-    for dir in dirs:
-        newbase_dir = "/".join((base_dir, dir))
-        for dataset in os.listdir(newbase_dir):
-            print(f"{newbase_dir}")
-            print(f"Processing dataset: {dataset}")
-            dataset_path = os.path.join(newbase_dir, dataset)
+    base_dir = "data/processed/class_imbalance"
+    for dataset in os.listdir(base_dir):
+        print(f"{base_dir}")
+        print(f"Processing dataset: {dataset}")
+        dataset_path = os.path.join(base_dir, dataset)
 
-            # Load preprocessed data
-            X_train = pd.read_csv(os.path.join(dataset_path, "X_train.csv")).values
-            y_train = pd.read_csv(
-                os.path.join(dataset_path, "y_train.csv")
-            ).values.flatten()
+        # Load preprocessed data
+        X_train = pd.read_csv(os.path.join(dataset_path, "X_train.csv")).values
+        y_train = pd.read_csv(os.path.join(dataset_path, "y_train.csv")).values.flatten()
 
-            # Initialize and train model
-            tree = DecisionTree(max_depth=5, criterion="gini")
-            tree.fit(X_train, y_train)
+        # Initialize and train model
+        tree = DecisionTree(max_depth=5, criterion="gini")
+        tree.fit(X_train, y_train)
 
-            # Make predictions
-            X_test = pd.read_csv(os.path.join(dataset_path, "X_test.csv")).values
-            predictions = tree.predict(X_test)
+        # Make predictions
+        X_test = pd.read_csv(os.path.join(dataset_path, "X_test.csv")).values
+        predictions = tree.predict(X_test)
 
-            # Test
-            y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
-            accuracy = np.mean(predictions == y_test)
-            print(f"Accuracy: {accuracy * 100:.2f}%")
+        # Test
+        y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
+        accuracy = np.mean(predictions == y_test)
+        print(f"Accuracy: {accuracy * 100:.2f}%")
