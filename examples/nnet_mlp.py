@@ -16,19 +16,29 @@ from mla.neuralnet.optimizers import Adadelta, Adam
 from mla.neuralnet.parameters import Parameters
 from mla.neuralnet.regularizers import L2
 from mla.utils import one_hot
+import os 
+import pandas as pd 
+import numpy as np
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 def classification():
-    # Generate a random binary classification problem.
-    X, y = make_classification(
-        n_samples=1000, n_features=100, n_informative=75, random_state=1111, n_classes=2, class_sep=2.5
-    )
-    y = one_hot(y)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=1111)
+    base_dir = "multiclass_classification"
 
-    model = NeuralNet(
+    for filename in os.listdir(base_dir):
+        file_path = os.path.join(base_dir, filename)
+        df = pd.read_csv(file_path)
+        newdf = df.dropna(axis=0, how="any")
+        print(filename)
+        #print("data length", len(df))
+        #print("new data length", len(newdf))
+        X = newdf.iloc[:, :-1]
+        y = newdf.iloc[:, -1]
+        y = one_hot(y)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=1111)
+
+        model = NeuralNet(
         layers=[
             Dense(256, Parameters(init="uniform", regularizers={"W": L2(0.05)})),
             Activation("relu"),
@@ -43,10 +53,10 @@ def classification():
         metric="accuracy",
         batch_size=64,
         max_epochs=25,
-    )
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
-    print("classification accuracy", roc_auc_score(y_test[:, 0], predictions[:, 0]))
+        )
+        model.fit(X_train, y_train)
+        predictions = model.predict(X_test)
+        print("classification accuracy", roc_auc_score(y_test[:, 0], predictions[:, 0]))
 
 
 def regression():
@@ -76,4 +86,4 @@ def regression():
 
 if __name__ == "__main__":
     classification()
-    regression()
+    #regression()
