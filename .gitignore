@@ -2,3 +2,5 @@
 Assignment.*
 !Assignment.tex
 !Assignment.pdf
+
+__pycache__/
