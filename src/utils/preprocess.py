@@ -6,8 +6,8 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 
 
 def preprocess_datasets(
-    raw_dir="data/raw/class_imabalance",
-    processed_dir="data/processed/class_imabalance",
+    raw_dir="data/raw/class_imbalance",
+    processed_dir="data/processed/class_imbalance",
     test_size=0.3,
     random_state=42,
     imputation_strategy="mean",
@@ -17,11 +17,11 @@ def preprocess_datasets(
     """
     os.makedirs(processed_dir, exist_ok=True)
     label_encoder = LabelEncoder()
-        
+
     for filename in os.listdir(raw_dir):
         if not filename.endswith(".csv"):
             continue
-        
+
         print(f"{processed_dir}:")
         print(f"Processing {filename}...")
         file_path = os.path.join(raw_dir, filename)
@@ -83,7 +83,9 @@ def preprocess_datasets(
                 X[num_cols] = MinMaxScaler().fit_transform(X[num_cols])
 
             # Stratified split
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=test_size, stratify=y, random_state=random_state
+            )
 
             # Save processed data
             base_name = os.path.splitext(filename)[0]
@@ -103,4 +105,3 @@ def preprocess_datasets(
 
 if __name__ == "__main__":
     preprocess_datasets()
-
