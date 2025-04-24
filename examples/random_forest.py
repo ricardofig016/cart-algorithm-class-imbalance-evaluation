@@ -1,5 +1,6 @@
 import logging
-
+import os 
+import pandas as pd
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
@@ -17,21 +18,28 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def classification():
-    # Generate a random binary classification problem.
-    X, y = make_classification(
-        n_samples=500, n_features=10, n_informative=10, random_state=1111, n_classes=2, class_sep=2.5, n_redundant=0
-    )
+    base_dir = "data/raw/class_imbalance"
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=1111)
+    for filename in os.listdir(base_dir):
+        file_path = os.path.join(base_dir, filename)
+        df = pd.read_csv(file_path)
+        newdf = df.dropna(axis=0, how="any")
+        #print(filename)
+        #print("data length", len(df))
+        #print("new data length", len(newdf))
+        X = newdf[newdf.columns[:-1]]
+        y = newdf.iloc[:, -1]
 
-    model = RandomForestClassifier(n_estimators=10, max_depth=4)
-    model.fit(X_train, y_train)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-    predictions_prob = model.predict(X_test)[:, 1]
-    predictions = np.argmax(model.predict(X_test), axis=1)
-    #print(predictions.shape)
-    print("classification, roc auc score: %s" % roc_auc_score(y_test, predictions_prob))
-    print("classification, accuracy score: %s" % accuracy_score(y_test, predictions))
+        model = RandomForestClassifier(n_estimators=10, max_depth=4)
+        model.fit(X_train, y_train)
+
+        predictions_prob = model.predict(X_test)[:, 1]
+        predictions = np.argmax(model.predict(X_test), axis=1)
+        #print(predictions.shape)
+        print("classification, roc auc score: %s" % roc_auc_score(y_test, predictions_prob))
+        print("classification, accuracy score: %s" % accuracy_score(y_test, predictions))
 
 
 def regression():

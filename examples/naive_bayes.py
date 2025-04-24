@@ -1,47 +1,31 @@
 from sklearn.datasets import make_classification
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
-import glob 
+import os 
 import pandas as pd
-
+import numpy as np
 from mla.naive_bayes import NaiveBayesClassifier
-
+from sklearn.preprocessing import LabelEncoder
 
 def classification():
-    # Generate a random binary classification problem.
-    #X, y = make_classification(
-     #   n_samples=1000, n_features=10, n_informative=10, random_state=1111, n_classes=2, class_sep=2.5, n_redundant=0
-    #)
-    files1 = glob.glob("noise_outliers/*.csv")
-    files2 = glob.glob("class_imbalance/*.csv")
-    files3 = glob.glob("multiclass_classification/*.csv")
-    for file1 in files1:
-        df = pd.read_csv(file1)
-        X = df.drop(df.columns[-1], axis=1)
-        y = df.iloc[ :, -1:]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-        model = NaiveBayesClassifier()
-        model.fit(X_train, y_train)
-        predictions = model.predict(X_test)[:, 1]
-        print("classification accuracy", roc_auc_score(y_test, predictions))
-    for file2 in files2:
-        df = pd.read_csv(file2)
-        X = df.drop(df.columns[-1], axis=1)
-        y = df.iloc[ :, -1:]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-        model = NaiveBayesClassifier()
-        model.fit(X_train, y_train)
-        predictions = model.predict(X_test)[:, 1]
-        print("classification accuracy", roc_auc_score(y_test, predictions))
-    for file3 in files3:
-        df = pd.read_csv(file3)
-        X = df.drop(df.columns[-1], axis=1)
-        y = df.iloc[ :, -1:]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-        model = NaiveBayesClassifier()
-        model.fit(X_train, y_train)
-        predictions = model.predict(X_test)[:, 1]
-        print("classification accuracy", roc_auc_score(y_test, predictions))
+    base_dir = "data/raw/class_imbalance"
+
+    for filename in os.listdir(base_dir):
+        file_path = os.path.join(base_dir, filename)
+        df = pd.read_csv(file_path)
+        newdf = df.dropna()
+        X = newdf.iloc[:, :-1]
+        y = newdf.iloc[:, -1]
+        if (list(np.unique(y)) != [0, 1]):
+            le = LabelEncoder()
+            label = le.fit_transform(newdf.iloc[:, -1])
+            newdf.drop(newdf.iloc[:, -1], axis=1, inplace=True)
+            newdf.iloc[:, -1] = label
+        X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.3, random_state=42)
+        tree = NaiveBayesClassifier()
+        tree.fit(X_train, y_train)
+        y_pred = tree.predict(X_test)[:,1]
+        print("Accuracy:", roc_auc_score(y_test, y_pred))
 
 
 if __name__ == "__main__":

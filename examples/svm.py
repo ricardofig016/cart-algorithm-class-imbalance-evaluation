@@ -19,9 +19,6 @@ def classification():
     #X, y = make_classification(
      #   n_samples=1200, n_features=10, n_informative=5, random_state=1111, n_classes=2, class_sep=1.75
     #)
-    files1 = glob.glob("noise_outliers/*.csv")
-    files2 = glob.glob("class_imbalance/*.csv")
-    files3 = glob.glob("multiclass_classification/*.csv")
     
     # Convert y to {-1, 1}
     y = (y * 2) - 1
