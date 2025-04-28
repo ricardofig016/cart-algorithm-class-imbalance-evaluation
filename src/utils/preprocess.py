@@ -10,7 +10,6 @@ def preprocess_datasets(
     processed_dir="data/processed/class_imbalance",
     test_size=0.3,
     random_state=42,
-    imputation_strategy="mean",
 ):
     """
     Preprocess datasets with robust label encoding and validation
@@ -19,6 +18,9 @@ def preprocess_datasets(
     label_encoder = LabelEncoder()
 
     for filename in os.listdir(raw_dir):
+        # if filename != "dataset_1000_hypothyroid.csv":
+        #     continue
+
         if not filename.endswith(".csv"):
             continue
 
@@ -52,21 +54,16 @@ def preprocess_datasets(
                 print(f"Skipping {filename}: Only one class present")
                 continue
 
-            # Handle missing features
-            if imputation_strategy == "drop":
-                valid_rows = X.notna().all(axis=1)
-                X, y = X[valid_rows], y[valid_rows]
-            else:
-                # Numerical imputation
-                num_cols = X.select_dtypes(include=np.number).columns
-                if len(num_cols) > 0:
-                    X[num_cols] = X[num_cols].fillna(X[num_cols].mean()).fillna(0)
+            # Numerical imputation
+            num_cols = X.select_dtypes(include=np.number).columns
+            if len(num_cols) > 0:
+                X[num_cols] = X[num_cols].fillna(X[num_cols].mean()).fillna(0)
 
-                # Categorical imputation
-                cat_cols = X.select_dtypes(exclude=np.number).columns
-                for col in cat_cols:
-                    mode = X[col].mode()[0] if not X[col].mode().empty else "missing"
-                    X[col] = X[col].fillna(mode)
+            # Categorical imputation
+            cat_cols = X.select_dtypes(exclude=np.number).columns
+            for col in cat_cols:
+                mode = X[col].mode()[0] if not X[col].mode().empty else "missing"
+                X[col] = X[col].fillna(mode)
 
             # Convert categoricals to dummies
             if len(cat_cols) > 0:
@@ -80,7 +77,23 @@ def preprocess_datasets(
             # Normalize numericals
             num_cols = X.select_dtypes(include=np.number).columns
             if len(num_cols) > 0:
+                # print("First few datapoints (numerical columns) before normalization:")
+                # print(X[num_cols].head(10))
+                # print("Datapoint with maximum age:")
+                # print(X.loc[X["age"] == X["age"].max()][num_cols])
+                # print("Datapoint with minimum age:")
+                # print(X.loc[X["age"] == X["age"].min()][num_cols].head(1))
+
                 X[num_cols] = MinMaxScaler().fit_transform(X[num_cols])
+
+                # print("\n--------------------------------------------------\n")
+                # print("Formula: (value - column_min) / (column_max - column_min)")
+                # print("First few datapoints (numerical columns) after normalization:")
+                # print(X[num_cols].head(10))
+                # print("Datapoint with maximum age:")
+                # print(X.loc[X["age"] == X["age"].max()][num_cols])
+                # print("Datapoint with minimum age:")
+                # print(X.loc[X["age"] == X["age"].min()][num_cols].head(1))
 
             # Stratified split
             X_train, X_test, y_train, y_test = train_test_split(

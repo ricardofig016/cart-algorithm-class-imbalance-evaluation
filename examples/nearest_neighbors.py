@@ -40,7 +40,7 @@ def classification():
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-        clf = knn.KNNClassifier(k=5, distance_func=distance.euclidean)
+        clf = knn.KNNClassifier(k=5, distance_func=distance.hamming)
 
         clf.fit(X_train, y_train)
         predictions = clf.predict(X_test)
