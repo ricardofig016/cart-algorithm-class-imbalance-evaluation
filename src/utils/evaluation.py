@@ -5,12 +5,12 @@ from sklearn.metrics import f1_score, roc_auc_score
 from cart.cart import DecisionTree
 
 
-def evaluate(data_dir="../data/processed/class_imbalance"):
+def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=5):
     results = {}
-    for dataset in os.listdir(data_dir):
-        print(f"\nProcessing dataset: {dataset}")
+    for dataset in os.listdir(data_dir)[:max_datasets]:
+        print(f"Evaluating for dataset: {dataset}")
 
-        results[dataset] = []
+        results[dataset] = {}
         dataset_path = os.path.join(data_dir, dataset)
 
         # Load preprocessed data
@@ -32,9 +32,9 @@ def evaluate(data_dir="../data/processed/class_imbalance"):
         accuracy = np.mean(predictions == y_test)
         f1 = f1_score(y_test, predictions)
         roc = roc_auc_score(y_test, predictions)
-        results[dataset].append(accuracy)
-        results[dataset].append(f1)
-        results[dataset].append(roc)
+        results[dataset]["accuracy"] = accuracy
+        results[dataset]["f1"] = f1
+        results[dataset]["roc"] = roc
     return results
 
 
