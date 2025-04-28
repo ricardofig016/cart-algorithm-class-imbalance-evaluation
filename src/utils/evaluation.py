@@ -6,11 +6,10 @@ from cart.cart import DecisionTree
 
 
 def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=5):
-    results = {}
+    results = []
     for dataset in os.listdir(data_dir)[:max_datasets]:
         print(f"Evaluating for dataset: {dataset}")
-
-        results[dataset] = {}
+        dataset_object = {"name": dataset}
         dataset_path = os.path.join(data_dir, dataset)
 
         # Load preprocessed data
@@ -31,12 +30,19 @@ def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=5):
         y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
         accuracy = np.mean(predictions == y_test)
         f1 = f1_score(y_test, predictions)
-        roc = roc_auc_score(y_test, predictions)
-        results[dataset]["accuracy"] = accuracy
-        results[dataset]["f1"] = f1
-        results[dataset]["roc"] = roc
+        roc_auc = roc_auc_score(y_test, predictions)
+        dataset_object["accuracy"] = accuracy
+        dataset_object["f1"] = f1
+        dataset_object["roc_auc"] = roc_auc
+        results.append(dataset_object)
     return results
 
 
+def save_results(results, output_path="../results/class_imbalance_evaluation.csv"):
+    df = pd.DataFrame.from_records(results)
+    df.to_csv(output_path, index=True)
+
+
 if __name__ == "__main__":
-    evaluate()
+    results = evaluate()
+    save_results(results)
