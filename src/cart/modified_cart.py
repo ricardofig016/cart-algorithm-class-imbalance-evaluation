@@ -81,7 +81,7 @@ class DecisionTree:
         """Find optimal feature and threshold for splitting"""
         best_gain = -1
         best_feature, best_threshold = None, None
-        current_impurity = self._calculate_impurity(y)
+        class_weight = self._class_weight(X, y)
 
         for feature in range(X.shape[1]):
             thresholds = np.unique(X[:, feature])
@@ -92,7 +92,7 @@ class DecisionTree:
                 if len(left_y) == 0 or len(right_y) == 0:
                     continue
 
-                gain = current_impurity - self._weighted_impurity(left_y, right_y)
+                gain = class_weight - self._class_weight(left_y, right_y)
                 if gain > best_gain:
                     best_gain = gain
                     best_feature = feature
