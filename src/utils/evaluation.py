@@ -1,11 +1,17 @@
 import os
 import numpy as np
 import pandas as pd
-from sklearn.metrics import f1_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    roc_auc_score,
+    precision_score,
+    recall_score,
+)
 from cart.cart import DecisionTree
 
 
-def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=-1):
+def evaluate(data_dir, max_datasets=-1):
     results = []
     datasets = (
         os.listdir(data_dir)
@@ -33,11 +39,15 @@ def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=-1):
 
         # Evaluate model performance
         y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
-        accuracy = np.mean(predictions == y_test)
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions)
+        recall = recall_score(y_test, predictions)
         f1 = f1_score(y_test, predictions)
         roc_auc = roc_auc_score(y_test, predictions)
 
         dataset_object["accuracy"] = accuracy
+        dataset_object["precision"] = precision
+        dataset_object["recall"] = recall
         dataset_object["f1"] = f1
         dataset_object["roc_auc"] = roc_auc
         results.append(dataset_object)
@@ -52,5 +62,6 @@ def save_results(results, output_path="../results/class_imbalance/evaluation_dat
 
 
 if __name__ == "__main__":
-    results = evaluate()
+    data_dir = "../data/processed/class_imbalance"
+    results = evaluate(data_dir, max_datasets=20)
     save_results(results)
