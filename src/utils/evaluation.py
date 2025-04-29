@@ -36,14 +36,17 @@ def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=-1):
         accuracy = np.mean(predictions == y_test)
         f1 = f1_score(y_test, predictions)
         roc_auc = roc_auc_score(y_test, predictions)
+
         dataset_object["accuracy"] = accuracy
         dataset_object["f1"] = f1
         dataset_object["roc_auc"] = roc_auc
         results.append(dataset_object)
+
     return results
 
 
-def save_results(results, output_path="../results/class_imbalance_evaluation.csv"):
+def save_results(results, output_path="../results/class_imbalance/evaluation_data.csv"):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df = pd.DataFrame.from_records(results)
     df.to_csv(output_path, index=True)
 
