@@ -5,9 +5,14 @@ from sklearn.metrics import f1_score, roc_auc_score
 from cart.cart import DecisionTree
 
 
-def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=5):
+def evaluate(data_dir="../data/processed/class_imbalance", max_datasets=-1):
     results = []
-    for dataset in os.listdir(data_dir)[:max_datasets]:
+    datasets = (
+        os.listdir(data_dir)
+        if max_datasets == -1
+        else os.listdir(data_dir)[:max_datasets]
+    )
+    for dataset in datasets:
         print(f"Evaluating for dataset: {dataset}")
         dataset_object = {"name": dataset}
         dataset_path = os.path.join(data_dir, dataset)
