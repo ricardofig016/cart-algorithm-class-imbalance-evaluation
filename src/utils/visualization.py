@@ -8,12 +8,14 @@ def plot_metric(data, metric, show=True, save_path=None):
 
     Parameters:
         data (pd.DataFrame or convertible): Data containing 'name' and the specified metric column.
-        metric (str): The metric to plot (e.g., 'f1', 'accuracy', 'roc_auc').
+        metric (str): The metric to plot ('accuracy', 'precision', 'recall', 'f1' or 'roc_auc').
         show (bool): If True, calls plt.show() to display the plot.
         save_path (str or None): If provided, saves the plot to this filepath.
     """
     if not isinstance(data, pd.DataFrame):
         data = pd.DataFrame(data)
+
+    data["name"] = data["name"].str.replace("dataset_", "")
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.bar(data["name"], data[metric], color="skyblue")
@@ -21,7 +23,7 @@ def plot_metric(data, metric, show=True, save_path=None):
     ax.set_xlabel("Dataset")
     ax.set_ylabel(metric.capitalize())
     ax.set_ylim(0, 1)
-    ax.tick_params(axis="x", rotation=45)
+    ax.tick_params(axis="x", rotation=90)
     plt.tight_layout()
 
     if save_path:
