@@ -55,7 +55,7 @@ def plot_all_metrics(data, show=True, save_dir=None):
 if __name__ == "__main__":
     import os
 
-    results_base_path = "../results/class_imbalance"
+    results_base_path = "results/class_imbalance"
     os.makedirs(results_base_path, exist_ok=True)
     data = pd.read_csv(os.path.join(results_base_path, "evaluation_data.csv"))
 

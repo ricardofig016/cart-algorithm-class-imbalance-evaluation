@@ -17,7 +17,7 @@ Key Modifications from Reference:
    - Early stopping criteria aligned with imbalance analysis needs
    - Memory-efficient node structure for large datasets
 
-3. Phase 2 Readiness:
+3. Phase 2 Readiness (see in modified_cart.py):
    - Modular impurity calculations for weighted Gini modification
    - Class label preservation for imbalance weighting
    - Predict method optimized for probability-based metrics (ROC-AUC)

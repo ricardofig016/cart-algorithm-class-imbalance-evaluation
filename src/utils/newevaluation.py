@@ -1,0 +1,75 @@
+import os
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    roc_auc_score,
+    precision_score,
+    recall_score,
+)
+from src.cart.modified_cart import DecisionTree
+
+
+def evaluate(data_dir, max_datasets=-1):
+    results = []
+    datasets = (
+        os.listdir(data_dir)
+        if max_datasets == -1
+        else os.listdir(data_dir)[:max_datasets]
+    )
+    for dataset in datasets:
+        print(f"A new evaluation for dataset: {dataset}")
+        dataset_object = {"name": dataset}
+        dataset_path = os.path.join(data_dir, dataset)
+
+        # Load preprocessed data
+        X_train = pd.read_csv(os.path.join(dataset_path, "X_train.csv")).values
+        y_train = pd.read_csv(
+            os.path.join(dataset_path, "y_train.csv")
+        ).values.flatten()
+
+        # Initialize and train model
+        tree = DecisionTree(
+            max_depth=5, 
+            criterion="gini", 
+            class_weight="balanced",
+            min_weight_fraction_leaf=0.01,
+            min_impurity_decrease=0.001,
+            smoothing_factor=1e-6,
+            prediction_confidence_threshold=0.6
+        )  # Hyperparameter Tuning
+        tree.fit(X_train, y_train)
+
+        # Make predictions
+        X_test = pd.read_csv(os.path.join(dataset_path, "X_test.csv")).values
+        predictions = tree.predict(X_test)
+
+        # Evaluate model performance
+        y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions)
+        recall = recall_score(y_test, predictions)
+        f1 = f1_score(y_test, predictions)
+        roc_auc = roc_auc_score(y_test, predictions)
+
+        dataset_object["accuracy"] = accuracy
+        dataset_object["precision"] = precision
+        dataset_object["recall"] = recall
+        dataset_object["f1"] = f1
+        dataset_object["roc_auc"] = roc_auc
+        results.append(dataset_object)
+
+    return results
+
+
+def save_results(results, output_path="results/class_imbalance/newevaluation_data.csv"):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df = pd.DataFrame.from_records(results)
+    df.to_csv(output_path, index=True)
+
+
+if __name__ == "__main__":
+    data_dir = "data/processed/class_imbalance"
+    results = evaluate(data_dir)
+    save_results(results)

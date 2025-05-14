@@ -8,7 +8,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from cart.cart import DecisionTree
+from src.cart.cart import DecisionTree
 
 
 def evaluate(data_dir, max_datasets=-1):
@@ -55,13 +55,13 @@ def evaluate(data_dir, max_datasets=-1):
     return results
 
 
-def save_results(results, output_path="../results/class_imbalance/evaluation_data.csv"):
+def save_results(results, output_path="results/class_imbalance/evaluation_data.csv"):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df = pd.DataFrame.from_records(results)
     df.to_csv(output_path, index=True)
 
 
 if __name__ == "__main__":
-    data_dir = "../data/processed/class_imbalance"
-    results = evaluate(data_dir, max_datasets=20)
+    data_dir = "data/processed/class_imbalance"
+    results = evaluate(data_dir)
     save_results(results)

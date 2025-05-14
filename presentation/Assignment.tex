@@ -1,14 +1,18 @@
 \documentclass{beamer}
-%\usepackage[utf8]{inputenc}    
-%\setbeamertemplate{navigation symbols}{}
+\usepackage[utf8]{inputenc}    
+\setbeamertemplate{navigation symbols}{}
 \beamertemplatenavigationsymbolsempty{}
 \setbeamertemplate{footline}[frame number]
+\usepackage[T1]{fontenc}
+\usepackage{babel}
 
 \usetheme{Copenhagen}       
 \title{Machine Learning I}
-\author[Ricardo Figueiredo, Sérgio Cardoso]
-{Ricardo Figueiredo up202105430 \and \\ Sérgio Cardoso up202107918}
-\date{May 2025}
+\author[Ricardo Figueiredo, Sérgio Cardoso]{
+    Ricardo Figueiredo up202105430 
+    \and  \\
+    Sérgio Cardoso up202107918
+}
 
 \begin{document}
 \maketitle
@@ -21,47 +25,70 @@
         made implementation of the algorithm on existing open-source 
         code in order to make it robust to the data 
         characteristic in question.
-        \item \textbf{Summary of Results:}
+        \item \textbf{Summary of Results:} 
+        \begin{itemize}
+            \item Table comparing Accuracy/F1/Precision/Recall/AUC across datasets
+            \item Learning curves showing stability
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Selected Algorithm and Data Characteristic}
+\begin{frame}{Selected Algorithm}
     We chose the CART algorithm due to its easy learning curve. 
-    CART stands for Classification and Regression Tree which, in 
+    CART stands for Classification And Regression Tree which, in 
     itself, uses a Decision Tree to determine the accuracy of a dataset. 
     Decision Trees are among the most popular models in ML, as they are used 
     not only by CART, but also by other algorithms, such as ID3 (Iteractive 
-    Dichotomiser 3) or C4.5, the latter being an extension of CART. \\ 
-    \textbf{Gini index:} $Gini(D) = 1 - \sum_{i = 1}^{c} {p_{i}}^2$, where
-    $p_{i}$ is the probability of class i.
-
+    Dichotomiser 3) or C4.5, the latter being an extension of CART. \\  
+    CART uses the Gini index as its impurity measure: \\
+        Given a data set D = $\{ \langle x_{i}, 
+        y_{i}\rangle \}_{i = 1}^{N}$ (with N examples), $Gini(D) = 1 - \sum_{i = 1}^{c} {p_{i}}^2$, where
+        $p_{i}$ is the probability of class i. \\
 \end{frame}
 
-\begin{frame}{Selected Algorithm and Data Characteristic}
-        Many classification algorithms are sensitive to certain data. For 
-        instance, k-NN is sensitive to the presence of outliers, 
-        SVM is sensitive to hyperparameter values. \\ 
-        For this assignment, we were given the following three set of 
-        benchmark datasets:
-        \begin{enumerate}
-            \item Noise or Outliers 
-            \item Class Imbalance in Binary Classification 
-            \item Multiclass Classification
-        \end{enumerate}
-        Given that we chose CART for this assignment and its 
-        only
+\begin{frame}{Data Characteristic}
 \end{frame}
 
 \begin{frame}{Proposal}
-\end{frame}
+For this assignment, we were given the three following set 
+    of benchmark datasets:
+    \begin{enumerate}
+       \item Noise or Outliers 
+       \item Class Imbalance in Binary Classification
+       \item Multiclass Classification 
+    \end{enumerate}
+    Since CART uses binary partitioning, we ended up using the 
+    set of binary classification datasets 
+    (Class Imbalance in Binary Classification). We also used this 
+    set because of the fact that CART doesn't do well with class 
+    imbalanced data. 
+\end{frame}      
 
 \begin{frame}{Emprical Study}
-    \begin{itemize}
-        \item \textbf{Experimental Setup:}
+    \textbf{Experimental Setup:} 
+    \begin{itemize} 
+        \item Datasets: binary classification datasets that 
+        suffer from class imbalance. 
+        \item Hyperparameters of the Algorithm:
+        \begin{itemize}
+            \item Maximum Depth of the Tree 
+            \item Criterion (Gini or Entropy)
+            \item Class Weight (Is it balanced or not?)
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Emprical Study}
+    \textbf{Performance Estimation Methodology:} \\ Since most 
+    of the datasets tested for this assignment are so large, we used
+    the holdout method, in which we split the data in two 
+    sub-sets: one for training and the other for testing. 
+\end{frame}
+
+\begin{frame}{Emprical Study}
+    Table comparing F1/AUC across datasets.
+
+   Learning curves showing stability.
 \end{frame}
 
 \begin{frame}{Conclusions}
