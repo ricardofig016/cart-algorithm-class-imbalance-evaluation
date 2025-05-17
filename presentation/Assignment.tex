@@ -47,6 +47,7 @@
 \end{frame}
 
 \begin{frame}{Data Characteristic}
+    
 \end{frame}
 
 \begin{frame}{Proposal}
@@ -60,8 +61,9 @@ For this assignment, we were given the three following set
     Since CART uses binary partitioning, we ended up using the 
     set of binary classification datasets 
     (Class Imbalance in Binary Classification). We also used this 
-    set because of the fact that CART doesn't do well with class 
-    imbalanced data. 
+    set because of the fact that CART can deal with class 
+    imbalanced data, if the class weight (one of our algorithm's 
+    parameters) is balanced. 
 \end{frame}      
 
 \begin{frame}{Emprical Study}
@@ -73,7 +75,7 @@ For this assignment, we were given the three following set
         \begin{itemize}
             \item Maximum Depth of the Tree 
             \item Criterion (Gini or Entropy)
-            \item Class Weight (Is it balanced or not?)
+            \item Class Weight 
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -89,6 +91,7 @@ For this assignment, we were given the three following set
     Table comparing F1/AUC across datasets.
 
    Learning curves showing stability.
+   
 \end{frame}
 
 \begin{frame}{Conclusions}

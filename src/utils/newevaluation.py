@@ -33,11 +33,7 @@ def evaluate(data_dir, max_datasets=-1):
         tree = DecisionTree(
             max_depth=5, 
             criterion="gini", 
-            class_weight="balanced",
-            min_weight_fraction_leaf=0.01,
-            min_impurity_decrease=0.001,
-            smoothing_factor=1e-6,
-            prediction_confidence_threshold=0.6
+            class_weight="balanced"
         )  # Hyperparameter Tuning
         tree.fit(X_train, y_train)
 
