@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import numpy as np
+from scipy import stats
 
 
 def load_and_merge_data(base_path="results/class_imbalance"):
@@ -50,7 +51,47 @@ def plot_metric_comparison(merged_data, metric, show=True, save_path=None):
     plt.close(fig)
 
 
+def perform_statistical_tests(merged_data):
+    """
+    Perform paired t-tests for all metrics
+    """
+    metrics = ["accuracy", "precision", "recall", "f1", "roc_auc"]
+    results = []
+
+    for metric in metrics:
+        base = merged_data[f"{metric}_base"]
+        modified = merged_data[f"{metric}_modified"]
+
+        # Perform paired t-test
+        t_stat, p_val = stats.ttest_rel(modified, base)
+        mean_diff = (modified - base).mean()
+
+        # Add significance stars
+        if p_val < 0.001:
+            stars = "***"
+        elif p_val < 0.01:
+            stars = "**"
+        elif p_val < 0.05:
+            stars = "*"
+        else:
+            stars = ""
+
+        results.append(
+            {
+                "metric": metric,
+                "mean_diff": mean_diff,
+                "p_value": p_val,
+                "significance": stars,
+            }
+        )
+
+    return pd.DataFrame(results)
+
+
 def plot_improvement_summary(merged_data, show=True, save_path=None):
+    # Perform statistical tests
+    stats_df = perform_statistical_tests(merged_data)
+
     metrics = ["accuracy", "precision", "recall", "f1", "roc_auc"]
     summary_data = []
 
@@ -66,33 +107,41 @@ def plot_improvement_summary(merged_data, show=True, save_path=None):
             }
         )
 
-    df = pd.DataFrame(summary_data)
-    df = df.sort_values("mean_improvement", ascending=False)
+    df = pd.DataFrame(summary_data).merge(stats_df, on="metric")
+    df = df.sort_values("mean_diff", ascending=False)
 
     # Create figure
     fig, (ax1, ax2) = plt.subplots(
-        2, 1, figsize=(10, 10), gridspec_kw={"height_ratios": [2, 1]}
+        2, 1, figsize=(10, 12), gridspec_kw={"height_ratios": [2, 1]}
     )
 
-    # Mean improvement plot
-    colors = ["#4CAF50" if x >= 0 else "#F44336" for x in df["mean_improvement"]]
-    bars = ax1.bar(df["metric"], df["mean_improvement"], color=colors)
+    # Mean improvement plot with significance markers
+    colors = ["#4CAF50" if x >= 0 else "#F44336" for x in df["mean_diff"]]
+    bars = ax1.bar(df["metric"], df["mean_diff"], color=colors)
     ax1.axhline(0, color="black", linewidth=0.8)
-    ax1.set_title("Average Metric Improvement (Modified - Base)", fontsize=14)
+    ax1.set_title(
+        "Average Metric Improvement with Statistical Significance", fontsize=14
+    )
     ax1.set_ylabel("Mean Δ", fontsize=12)
 
-    # Add value labels
-    for bar in bars:
+    # Add significance markers and values
+    max_height = df["mean_diff"].abs().max() * 1.2
+    ax1.set_ylim(-max_height, max_height)
+
+    for bar, (_, row) in zip(bars, df.iterrows()):
         height = bar.get_height()
+        va = "bottom" if height >= 0 else "top"
+        y = height + (0.05 * max_height if height >= 0 else -0.05 * max_height)
         ax1.text(
-            bar.get_x() + bar.get_width() / 2.0,
-            height,
-            f"{height:.3f}",
+            bar.get_x() + bar.get_width() / 2,
+            y,
+            f'{row["mean_diff"]:.3f}{row["significance"]}\n(p={row["p_value"]:.3f})',
             ha="center",
-            va="bottom",
+            va=va,
+            fontsize=10,
         )
 
-    # Count comparison plot
+    # Count comparison plot remains the same
     bar_width = 0.35
     x = np.arange(len(df))
     ax2.bar(
@@ -108,6 +157,15 @@ def plot_improvement_summary(merged_data, show=True, save_path=None):
     ax2.legend()
 
     plt.tight_layout()
+
+    plt.subplots_adjust(bottom=0.1)
+    fig.text(
+        0.5,
+        0.05,
+        "Visual shorthand for p-value ranges: *** = p < 0.001 (most significant) | ** = p < 0.01 | * = p < 0.05 | (no stars) = Not statistically significant",
+        ha="center",
+        fontsize=10,
+    )
 
     if save_path:
         plt.savefig(save_path, bbox_inches="tight")
