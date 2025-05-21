@@ -5,7 +5,7 @@ import numpy as np
 from scipy import stats
 
 
-def load_and_merge_data(base_path="results/class_imbalance"):
+def load_and_merge_data(base_path="results"):
     base_df = pd.read_csv(os.path.join(base_path, "evaluation_data.csv"))
     modified_df = pd.read_csv(os.path.join(base_path, "newevaluation_data.csv"))
     merged_df = pd.merge(
@@ -37,7 +37,7 @@ def plot_metric_comparison(merged_data, metric, show=True, save_path=None):
     ax.tick_params(axis="x", rotation=90, labelsize=8)
     ax.tick_params(axis="y", labelsize=10)
 
-    # Dynamically adjust y-axis limits based on the max delta magnitude
+    # Dynamically adjust y-axis limits based on the max delta magnitude     
     max_delta = max(delta.max(), abs(delta.min()))
     buffer = max(0.1, max_delta * 0.1)  # Ensure some buffer space
     ax.set_ylim(-max_delta - buffer, max_delta + buffer)
@@ -193,8 +193,8 @@ def plot_all_comparisons(merged_data, show=True, save_dir=None):
 
 
 if __name__ == "__main__":
-    results_base_path = "results/class_imbalance"
+    results_base_path = "results"
     merged_data = load_and_merge_data(results_base_path)
-    comparisons_base_path = "results/class_imbalance/comparisons"
+    comparisons_base_path = "results/comparisons"
     os.makedirs(comparisons_base_path, exist_ok=True)
     plot_all_comparisons(merged_data, show=False, save_dir=comparisons_base_path)

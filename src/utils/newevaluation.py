@@ -59,7 +59,7 @@ def evaluate(data_dir, max_datasets=-1):
     return results
 
 
-def save_results(results, output_path="results/class_imbalance/newevaluation_data.csv"):
+def save_results(results, output_path="results/newevaluation_data.csv"):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df = pd.DataFrame.from_records(results)
     df.to_csv(output_path, index=True)

@@ -1,0 +1,188 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}    
+\setbeamertemplate{navigation symbols}{}
+\beamertemplatenavigationsymbolsempty{}
+\setbeamertemplate{footline}[frame number]
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usetheme{Copenhagen}       
+\title{Machine Learning I} 
+\author[Ricardo Figueiredo, Sérgio Cardoso]{
+    Ricardo Figueiredo up202105430 
+    \and  \\
+    Sérgio Cardoso up202107918
+}
+
+\begin{document}
+\maketitle
+
+\begin{frame}{Executive Summary}
+    \begin{itemize}
+        \item \textbf{Goals:} use a classification algorithm taught in classes 
+        to obtain the accuracy of a set of benchmark datasets
+        \item \textbf{Outline of the Approach:} modify an already 
+        made implementation of the algorithm on existing open-source 
+        code in order to make it robust to the data 
+        characteristic in question.
+        \item \textbf{Summary of Results:} 
+        \begin{itemize}
+            \item Table comparing Accuracy/F1/Precision/Recall/AUC across datasets
+            \item Learning curves showing stability
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Selected Algorithm}
+    We chose the CART algorithm due to its easy learning curve. 
+    CART stands for Classification And Regression Tree which, in 
+    itself, uses a Decision Tree to determine the accuracy of a dataset. 
+    Decision Trees are among the most popular models in ML, as they are used 
+    not only by CART, but also by other algorithms, such as ID3 (Iteractive 
+    Dichotomiser 3) or C4.5, the latter being an extension of CART. \\  
+    CART uses the Gini index as its impurity measure: \\
+        Given a data set D = $\{ \langle x_{i}, 
+        y_{i}\rangle \}_{i = 1}^{N}$ (with N examples), $Gini(D) = 1 - \sum_{i = 1}^{c} {p_{i}}^2$, where
+        $p_{i}$ is the probability of class i. \\
+\end{frame}
+
+\begin{frame}{Data Characteristic}
+    Decision trees, when working with imbalanced datasets, tend to 
+    maximize node purity, leading them to favor the majority class at 
+    the expense of the minority class. This is due to the 
+    fact that decision trees emphasize the more frequent class, 
+    which can lead to high misclassification rates for the 
+    minority classes. \\
+    There are some ways to address this issue, such as:
+    \begin{itemize}
+        \item Cost-sensitive learning (assign higher misclassification costs 
+        to the minority class)
+        \item Sampling techniques (balance the dataset by oversampling 
+        the minority class or undersampling the majority class)
+        \item Suitable prediction metrics (e.g. precision, recall,
+        f1-score)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Proposal}
+For this assignment, we were given the three following set 
+    of benchmark datasets:
+    \begin{enumerate}
+       \item Noise or Outliers 
+       \item Class Imbalance in Binary Classification
+       \item Multiclass Classification 
+    \end{enumerate}
+    Since CART uses binary partitioning, we ended up using the 
+    set of binary classification datasets 
+    (Class Imbalance in Binary Classification). We also used this 
+    set because of the fact that CART can deal with class 
+    imbalanced data, if we apply some of the techniques mentioned 
+    before. 
+\end{frame}      
+
+\begin{frame}{Emprical Study}
+    \textbf{Experimental Setup:} 
+    \begin{itemize} 
+        \item Datasets: binary classification datasets that 
+        suffer from class imbalance. 
+        \item Hyperparameters of the Algorithm:
+        \begin{itemize}
+            \item Maximum Depth of the Tree 
+            \item Criterion (Gini)
+            \item Class Weight 
+        \end{itemize}
+    \end{itemize} 
+    \textbf{Performance Estimation Methodology:} \\ Since most 
+    of the datasets tested for this assignment are so large, we used
+    the holdout method, in which we split the data in two 
+    sub-sets: one for training and the other for testing.
+\end{frame}
+
+\begin{frame}{Emprical Study - Performance of the original CART algorithm}
+    \begin{figure}
+            \centerline{%
+            \subfloat[Accuracy]{
+                \includegraphics[width=.47\textwidth]{results/accuracy_plot.png}
+            }\hfill
+            \subfloat[Precision]{
+                \includegraphics[width=.47\textwidth]{results/precision_plot.png}
+            }%
+            }
+            \centerline{%
+            \subfloat[Recall]{
+                \includegraphics[width=.37\textwidth]{results/recall_plot.png}
+            }\hfill
+            \subfloat[F1-Score]{
+                \includegraphics[width=.37\textwidth]{results/f1_plot.png}
+            }\hfill
+            \subfloat[ROC]{
+                \includegraphics[width=.37\textwidth]{results/roc_auc_plot.png}
+            }%
+            }
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Emprical Study - Performance of the modified CART algorithm}
+    \begin{figure}
+            \centerline{%
+            \subfloat[Accuracy]{
+                \includegraphics[width=.47\textwidth]{results/newaccuracy_plot.png}
+            }\hfill
+            \subfloat[Precision]{
+                \includegraphics[width=.47\textwidth]{results/newprecision_plot.png}
+            }%
+            }
+            \centerline{%
+            \subfloat[Recall]{
+                \includegraphics[width=.37\textwidth]{results/newrecall_plot.png}
+            }\hfill
+            \subfloat[F1-Score]{
+                \includegraphics[width=.37\textwidth]{results/newf1_plot.png}
+            }\hfill
+            \subfloat[ROC]{
+                \includegraphics[width=.37\textwidth]{results/newroc_auc_plot.png}
+            }%
+            }
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Emprical Study - Performance Comparison}
+    \begin{figure}
+            \centerline{%
+            \subfloat[Accuracy]{
+                \includegraphics[width=.47\textwidth]{results/comparisons/accuracy_comparison.png}
+            }\hfill
+            \subfloat[Precision]{
+                \includegraphics[width=.47\textwidth]{results/comparisons/precision_comparison.png}
+            }%
+            }
+            \centerline{%
+            \subfloat[Recall]{
+                \includegraphics[width=.37\textwidth]{results/comparisons/recall_comparison.png}
+            }%
+            \subfloat[F1-Score]{
+                \includegraphics[width=.37\textwidth]{results/comparisons/f1_comparison.png}
+            }%
+            \subfloat[ROC]{
+                \includegraphics[width=.37\textwidth]{results/comparisons/roc_auc_comparison.png}
+            }%% 
+            }
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Empirical Study - Improvement Summary}
+\begin{figure}
+    \includegraphics[width=.6\textwidth]{results/comparisons/improvement_summary.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Conclusions}
+\end{frame}
+
+\begin{frame}{References}
+\end{frame}
+
+\end{document}
