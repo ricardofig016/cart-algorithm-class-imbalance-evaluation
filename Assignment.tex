@@ -9,6 +9,8 @@
 \usepackage{caption}
 \usepackage{graphicx}
 \usepackage{lmodern}
+\setbeamertemplate{page number in head/foot}[totalframenumber]
+%\setbeamerfont{footline}{series=\bfseries}
 \usetheme{Copenhagen}       
 \title{Machine Learning I} 
 \author[Ricardo Figueiredo, Sérgio Cardoso]{
@@ -23,23 +25,24 @@
 \begin{frame}{Executive Summary}
     \begin{itemize}
         \item \textbf{Goals:} use a classification algorithm taught in classes 
-        to obtain the accuracy of a set of benchmark datasets
+        to obtain the accuracy of a set of benchmark datasets.
         \item \textbf{Outline of the Approach:} modify an already 
         made implementation of the algorithm on existing open-source 
         code in order to make it robust to the data 
         characteristic in question.
         \item \textbf{Summary of Results:} 
         \begin{itemize}
-            \item Table comparing Accuracy/F1/Precision/Recall/AUC across datasets
-            \item Learning curves showing stability
+            \item Tables comparing Accuracy/F1/Precision/Recall/ROC across datasets
+            \item Comparison of the original and modified algorithm
+            \item Summary of the improvement of the modified algorithm
         \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Selected Algorithm}
-    We chose the CART algorithm due to its easy learning curve. 
+\begin{frame}{Selected Algorithm} 
+    For this assignment, we chose the CART algorithm due to its easy learning curve. 
     CART stands for Classification And Regression Tree which, in 
-    itself, uses a Decision Tree to determine the accuracy of a dataset. 
+    itself, uses a Decision Tree. 
     Decision Trees are among the most popular models in ML, as they are used 
     not only by CART, but also by other algorithms, such as ID3 (Iteractive 
     Dichotomiser 3) or C4.5, the latter being an extension of CART. \\  
@@ -51,24 +54,23 @@
 
 \begin{frame}{Data Characteristic}
     Decision trees, when working with imbalanced datasets, tend to 
-    maximize node purity, leading them to favor the majority class at 
-    the expense of the minority class. This is due to the 
+    maximize node purity. This is due to the 
     fact that decision trees emphasize the more frequent class, 
     which can lead to high misclassification rates for the 
     minority classes. \\
     There are some ways to address this issue, such as:
     \begin{itemize}
-        \item Cost-sensitive learning (assign higher misclassification costs 
+        \item Cost-Sensitive Learning (assign higher misclassification costs 
         to the minority class)
-        \item Sampling techniques (balance the dataset by oversampling 
+        \item Sampling Techniques (balance the dataset by oversampling 
         the minority class or undersampling the majority class)
-        \item Suitable prediction metrics (e.g. precision, recall,
-        f1-score)
+        \item Adjusted Evaluation Metrics (e.g. precision, recall,
+        f1-score, instead of just accuracy)
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Proposal}
-For this assignment, we were given the three following set 
+We were given the three following set 
     of benchmark datasets:
     \begin{enumerate}
        \item Noise or Outliers 
@@ -174,9 +176,9 @@ For this assignment, we were given the three following set
 \end{frame}
 
 \begin{frame}{Empirical Study - Improvement Summary}
-\begin{figure}
-    \includegraphics[width=.6\textwidth]{results/comparisons/improvement_summary.png}
-\end{figure}
+    \begin{figure}\centering
+    \includegraphics[width=.65\textwidth]{results/comparisons/improvement_summary.png}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{Conclusions}

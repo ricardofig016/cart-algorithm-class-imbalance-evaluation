@@ -250,11 +250,3 @@ if __name__ == "__main__":
         y_test = pd.read_csv(os.path.join(dataset_path, "y_test.csv")).values.flatten()
         accuracy = np.mean(predictions == y_test)
         print(f"Accuracy: {accuracy * 100:.2f}%") 
-        
-        # Calculate per-class metrics
-        #nique_classes = np.unique(y_test)
-        #for cls in unique_classes:
-         #   cls_mask = y_test == cls
-          #  if np.sum(cls_mask) > 0:  # If class exists in test set
-           #     cls_accuracy = np.mean(predictions[cls_mask] == y_test[cls_mask])
-            #    print(f"Class {cls} accuracy: {cls_accuracy * 100:.2f}% (samples: {np.sum(cls_mask)})")
