@@ -24,96 +24,96 @@
 
 \begin{frame}{Executive Summary}
     \begin{itemize}
-        \item \textbf{Goals:} use a classification algorithm taught in classes 
-        to obtain the accuracy of a set of benchmark datasets.
-        \item \textbf{Outline of the Approach:} modify an already 
-        made implementation of the algorithm on existing open-source 
-        code in order to make it robust to the data 
-        characteristic in question.
-        \item \textbf{Summary of Results:} 
-        \begin{itemize}
-            \item Tables comparing Accuracy/F1/Precision/Recall/ROC across datasets
-            \item Comparison of the original and modified algorithm
-            \item Summary of the improvement of the modified algorithm
-        \end{itemize}
+        \item \textbf{Goals:} use a classification algorithm taught in classes
+              to obtain the accuracy of a set of benchmark datasets.
+        \item \textbf{Outline of the Approach:} modify an already
+              made implementation of the algorithm on existing open-source
+              code in order to make it robust to the data
+              characteristic in question.
+        \item \textbf{Summary of Results:}
+              \begin{itemize}
+                  \item Tables comparing Accuracy/F1/Precision/Recall/ROC across datasets
+                  \item Comparison of the original and modified algorithm
+                  \item Summary of the improvement of the modified algorithm
+              \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Selected Algorithm} 
-    For this assignment, we chose the CART algorithm due to its easy learning curve. 
-    CART stands for Classification And Regression Tree which, in 
-    itself, uses a Decision Tree. 
-    Decision Trees are among the most popular models in ML, as they are used 
-    not only by CART, but also by other algorithms, such as ID3 (Iteractive 
-    Dichotomiser 3) or C4.5, the latter being an extension of CART. \\  
+\begin{frame}{Selected Algorithm}
+    For this assignment, we chose the CART algorithm due to its easy learning curve.
+    CART stands for Classification And Regression Tree which, in
+    itself, uses a Decision Tree.
+    Decision Trees are among the most popular models in ML, as they are used
+    not only by CART, but also by other algorithms, such as ID3 (Iteractive
+    Dichotomiser 3) or C4.5, the latter being an extension of CART. \\
     CART uses the Gini index as its impurity measure: \\
-        Given a data set D = $\{ \langle x_{i}, 
+    Given a data set D = $\{ \langle x_{i},
         y_{i}\rangle \}_{i = 1}^{N}$ (with N examples), $Gini(D) = 1 - \sum_{i = 1}^{c} {p_{i}}^2$, where
-        $p_{i}$ is the probability of class i. \\
+    $p_{i}$ is the probability of class i. \\
 \end{frame}
 
 \begin{frame}{Data Characteristic}
-    Decision trees, when working with imbalanced datasets, tend to 
-    maximize node purity. This is due to the 
-    fact that decision trees emphasize the more frequent class, 
-    which can lead to high misclassification rates for the 
+    Decision trees, when working with imbalanced datasets, tend to
+    maximize node purity. This is due to the
+    fact that decision trees emphasize the more frequent class,
+    which can lead to high misclassification rates for the
     minority classes. \\
     There are some ways to address this issue, such as:
     \begin{itemize}
-        \item Cost-Sensitive Learning (assign higher misclassification costs 
-        to the minority class)
-        \item Sampling Techniques (balance the dataset by oversampling 
-        the minority class or undersampling the majority class)
+        \item Cost-Sensitive Learning (assign higher misclassification costs
+              to the minority class)
+        \item Sampling Techniques (balance the dataset by oversampling
+              the minority class or undersampling the majority class)
         \item Adjusted Evaluation Metrics (e.g. precision, recall,
-        f1-score, instead of just accuracy)
+              f1-score, instead of just accuracy)
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Proposal}
-We were given the three following set 
+    We were given the three following set
     of benchmark datasets:
     \begin{enumerate}
-       \item Noise or Outliers 
-       \item Class Imbalance in Binary Classification
-       \item Multiclass Classification 
+        \item Noise or Outliers
+        \item Class Imbalance in Binary Classification
+        \item Multiclass Classification
     \end{enumerate}
-    Since CART uses binary partitioning, we ended up using the 
-    set of binary classification datasets 
-    (Class Imbalance in Binary Classification). We also used this 
-    set because of the fact that CART can deal with class 
-    imbalanced data, if we apply some of the techniques mentioned 
-    before. 
-\end{frame}      
+    Since CART uses binary partitioning, we ended up using the
+    set of binary classification datasets
+    (Class Imbalance in Binary Classification). We also used this
+    set because of the fact that CART can deal with class
+    imbalanced data, if we apply some of the techniques mentioned
+    before.
+\end{frame}
 
 \begin{frame}{Emprical Study}
-    \textbf{Experimental Setup:} 
-    \begin{itemize} 
-        \item Datasets: binary classification datasets that 
-        suffer from class imbalance. 
+    \textbf{Experimental Setup:}
+    \begin{itemize}
+        \item Datasets: binary classification datasets that
+              suffer from class imbalance.
         \item Hyperparameters of the Algorithm:
-        \begin{itemize}
-            \item Maximum Depth of the Tree 
-            \item Criterion (Gini)
-            \item Class Weight 
-        \end{itemize}
-    \end{itemize} 
-    \textbf{Performance Estimation Methodology:} \\ Since most 
+              \begin{itemize}
+                  \item Maximum Depth of the Tree
+                  \item Criterion (Gini)
+                  \item Class Weight
+              \end{itemize}
+    \end{itemize}
+    \textbf{Performance Estimation Methodology:} \\ Since most
     of the datasets tested for this assignment are so large, we used
-    the holdout method, in which we split the data in two 
+    the holdout method, in which we split the data in two
     sub-sets: one for training and the other for testing.
 \end{frame}
 
 \begin{frame}{Emprical Study - Performance of the original CART algorithm}
     \begin{figure}
-            \centerline{%
+        \centerline{%
             \subfloat[Accuracy]{
                 \includegraphics[width=.47\textwidth]{results/accuracy_plot.png}
             }\hfill
             \subfloat[Precision]{
                 \includegraphics[width=.47\textwidth]{results/precision_plot.png}
             }%
-            }
-            \centerline{%
+        }
+        \centerline{%
             \subfloat[Recall]{
                 \includegraphics[width=.37\textwidth]{results/recall_plot.png}
             }\hfill
@@ -123,21 +123,21 @@ We were given the three following set
             \subfloat[ROC]{
                 \includegraphics[width=.37\textwidth]{results/roc_auc_plot.png}
             }%
-            }
+        }
     \end{figure}
 \end{frame}
 
 \begin{frame}{Emprical Study - Performance of the modified CART algorithm}
     \begin{figure}
-            \centerline{%
+        \centerline{%
             \subfloat[Accuracy]{
                 \includegraphics[width=.47\textwidth]{results/newaccuracy_plot.png}
             }\hfill
             \subfloat[Precision]{
                 \includegraphics[width=.47\textwidth]{results/newprecision_plot.png}
             }%
-            }
-            \centerline{%
+        }
+        \centerline{%
             \subfloat[Recall]{
                 \includegraphics[width=.37\textwidth]{results/newrecall_plot.png}
             }\hfill
@@ -147,21 +147,21 @@ We were given the three following set
             \subfloat[ROC]{
                 \includegraphics[width=.37\textwidth]{results/newroc_auc_plot.png}
             }%
-            }
+        }
     \end{figure}
 \end{frame}
 
 \begin{frame}{Emprical Study - Performance Comparison}
     \begin{figure}
-            \centerline{%
+        \centerline{%
             \subfloat[Accuracy]{
                 \includegraphics[width=.47\textwidth]{results/comparisons/accuracy_comparison.png}
             }\hfill
             \subfloat[Precision]{
                 \includegraphics[width=.47\textwidth]{results/comparisons/precision_comparison.png}
             }%
-            }
-            \centerline{%
+        }
+        \centerline{%
             \subfloat[Recall]{
                 \includegraphics[width=.37\textwidth]{results/comparisons/recall_comparison.png}
             }%
@@ -171,20 +171,58 @@ We were given the three following set
             \subfloat[ROC]{
                 \includegraphics[width=.37\textwidth]{results/comparisons/roc_auc_comparison.png}
             }%% 
-            }
+        }
     \end{figure}
 \end{frame}
 
 \begin{frame}{Empirical Study - Improvement Summary}
     \begin{figure}\centering
-    \includegraphics[width=.65\textwidth]{results/comparisons/improvement_summary.png}
+        \includegraphics[width=.65\textwidth]{results/comparisons/improvement_summary.png}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Conclusions}
+\begin{frame}{Conclusions and Future Work}
+    \textbf{Key Findings:}
+    \begin{itemize}
+        \item {Modified CART Improves Minority-Class Performance:}
+              \begin{itemize}
+                  \item +4\% ROC-AUC
+                  \item +18.3\% Recall
+              \end{itemize}
+        \item {Trade-offs Exist:}
+              \begin{itemize}
+                  \item Accuracy decreased 17.7\%
+                  \item Gains were dataset-dependent
+              \end{itemize}
+    \end{itemize}
+
+    \textbf{Limitations:}
+    \begin{itemize}
+        \item Manual tuning of class weights required for each dataset
+        \item Noisy minority-class samples degrade performance.
+    \end{itemize}
+
+    \textbf{Future Work:}
+    \begin{itemize}
+        \item Automate weight tuning via grid search
+        \item Test on multiclass imbalance
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{References}
+    \begin{enumerate}
+        \item \textbf{CART Implementation (Base Code Inspiration):}
+              \url{https://github.com/zziz/cart}
+
+        \item \textbf{Original CART Algorithm:}
+              Breiman, L., Friedman, J., Stone, C. J., \& Olshen, R. (1984).
+              \textit{Classification and Regression Trees}. Chapman \& Hall/CRC.
+
+        \item \textbf{Evaluation Metrics \& Tools:}
+              \begin{itemize}
+                  \item Hunter, J. D. (2007). \textit{Matplotlib: A 2D Graphics Environment}. IEEE.
+              \end{itemize}
+    \end{enumerate}
 \end{frame}
 
 \end{document}
